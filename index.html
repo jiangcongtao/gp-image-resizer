@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Resizer - WeChat Friendly</title>
+    <!-- JSZip library for creating zip files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -432,6 +434,7 @@
             border-color: var(--text-light);
             transform: translateY(-2px);
             background: #2A2A2A;
+            color: white;
         }
 
         body.dark-mode .btn-outline {
@@ -442,6 +445,7 @@
         body.dark-mode .btn-outline:hover:not(:disabled) {
             background: #2A2A2A;
             border-color: var(--text-light);
+            color: white;
         }
 
         /* Results Section */
@@ -929,6 +933,9 @@
                     <button class="btn btn-secondary" id="downloadAllBtn" disabled>
                         <span>⬇️</span> <span id="downloadAllBtnText">Download All</span>
                     </button>
+                    <button class="btn btn-secondary" id="downloadZipBtn" disabled>
+                        <span>📦</span> <span id="downloadZipBtnText">Download All in Zip</span>
+                    </button>
                     <button class="btn btn-outline" id="clearBtn" disabled>
                         <span>🗑️</span> <span id="clearAllBtn">Clear All</span>
                     </button>
@@ -988,6 +995,7 @@
                 // Buttons
                 resizeAllBtn: '调整所有',
                 downloadAllBtnText: '下载所有',
+                downloadAllInZipBtnText: '下载所有为 Zip',
                 downloadThisBtnText: '下载此图片',
                 clearAllBtn: '清除所有',
 
@@ -1041,6 +1049,8 @@
                 // Toast messages
                 pleaseWait: '请稍候...',
                 allProcessed: '全部处理完成！',
+                creatingZip: '正在创建 ZIP...',
+                zipCreated: 'ZIP 文件已创建！',
             },
             en: {
                 // Header
@@ -1071,6 +1081,7 @@
                 // Buttons
                 resizeAllBtn: 'Resize All',
                 downloadAllBtnText: 'Download All',
+                downloadAllInZipBtnText: 'Download All in Zip',
                 downloadThisBtnText: 'Download This',
                 clearAllBtn: 'Clear All',
 
@@ -1124,6 +1135,8 @@
                 // Toast messages
                 pleaseWait: 'Please wait...',
                 allProcessed: 'All processed!',
+                creatingZip: 'Creating ZIP...',
+                zipCreated: 'ZIP file created!',
             }
         };
 
@@ -1144,6 +1157,7 @@
             uploadStatus: document.getElementById('uploadStatus'),
             compressBtn: document.getElementById('compressBtn'),
             downloadAllBtn: document.getElementById('downloadAllBtn'),
+            downloadZipBtn: document.getElementById('downloadZipBtn'),
             clearBtn: document.getElementById('clearBtn'),
             resultsContainer: document.getElementById('resultsContainer'),
             progressContainer: document.getElementById('progressContainer'),
@@ -1181,6 +1195,7 @@
             // Buttons
             resizeAllBtn: document.getElementById('resizeAllBtn'),
             downloadAllBtnText: document.getElementById('downloadAllBtnText'),
+            downloadZipBtnText: document.getElementById('downloadZipBtnText'),
             clearAllBtn: document.getElementById('clearAllBtn'),
             // Results
             resultsTitle: document.getElementById('resultsTitle'),
@@ -1243,6 +1258,7 @@
             // Buttons
             elements.resizeAllBtn.textContent = t.resizeAllBtn;
             elements.downloadAllBtnText.textContent = t.downloadAllBtnText;
+            elements.downloadZipBtnText.textContent = t.downloadAllInZipBtnText;
             elements.clearAllBtn.textContent = t.clearAllBtn;
 
             // Results
@@ -1700,6 +1716,55 @@
             showToast(t.allProcessed, 'success');
         }
 
+        // Download all compressed images as a zip file
+        async function downloadAllAsZip() {
+            const t = translations[state.currentLang];
+            if (state.compressedFiles.length === 0) {
+                showToast(t.noCompressed, 'error');
+                return;
+            }
+
+            showToast(t.creatingZip, 'info');
+
+            try {
+                // Create a new JSZip instance
+                const zip = new JSZip();
+                const folder = zip.folder('compressed_images');
+
+                // Add each compressed image to the zip
+                state.compressedFiles.forEach((result) => {
+                    const fileName = `compressed_${result.originalFile.name}`;
+                    // Convert base64 data URL to blob
+                    const base64Data = result.dataUrl.split(',')[1];
+                    const binaryData = atob(base64Data);
+                    const arrayBuffer = new Uint8Array(binaryData.length);
+                    for (let i = 0; i < binaryData.length; i++) {
+                        arrayBuffer[i] = binaryData.charCodeAt(i);
+                    }
+                    folder.file(fileName, arrayBuffer);
+                });
+
+                // Generate the zip file
+                const blob = await zip.generateAsync({ type: 'blob' });
+
+                // Download the zip file
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `compressed_images_${new Date().getTime()}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Clean up the object URL
+                URL.revokeObjectURL(link.href);
+
+                showToast(t.zipCreated, 'success');
+            } catch (error) {
+                console.error('Error creating zip:', error);
+                showToast(t.downloadError, 'error');
+            }
+        }
+
         // Remove file from pending list
         function removeFile(index) {
             const t = translations[state.currentLang];
@@ -1734,6 +1799,7 @@
         function updateButtons() {
             elements.compressBtn.disabled = state.files.length === 0 || state.isCompressing;
             elements.downloadAllBtn.disabled = state.compressedFiles.length === 0;
+            elements.downloadZipBtn.disabled = state.compressedFiles.length === 0;
             elements.clearBtn.disabled = state.files.length === 0 && state.compressedFiles.length === 0;
         }
 
@@ -1767,6 +1833,7 @@
 
         elements.compressBtn.addEventListener('click', compressImages);
         elements.downloadAllBtn.addEventListener('click', downloadAll);
+        elements.downloadZipBtn.addEventListener('click', downloadAllAsZip);
         elements.clearBtn.addEventListener('click', clearAll);
 
         // Custom resolution option handling
