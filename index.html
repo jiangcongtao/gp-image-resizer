@@ -244,6 +244,14 @@
             content: "⚙️";
         }
 
+        #qualityTitle {
+            margin-top: 30px;
+        }
+
+        #qualityTitle::before {
+            content: "🎨";
+        }
+
         .size-options {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -752,6 +760,19 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
+            .custom-size-input-wrapper {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .custom-size-input {
+                width: 100%;
+            }
+
+            .unit-select {
+                width: 100%;
+            }
+
             .btn {
                 min-width: 100%;
             }
@@ -851,6 +872,16 @@
                     </div>
                 </div>
 
+                <!-- Custom Resolution Input -->
+                <div class="custom-size-container" id="customSizeContainer" style="display: none;">
+                    <label class="custom-size-label" id="customResLabel">Custom Resolution:</label>
+                    <div class="custom-size-input-wrapper">
+                        <input type="number" id="customWidthInput" class="custom-size-input" placeholder="Width" min="100" max="7680" value="1920">
+                        <span style="font-weight: bold;">×</span>
+                        <input type="number" id="customHeightInput" class="custom-size-input" placeholder="Height" min="100" max="4320" value="1080">
+                    </div>
+                </div>
+
                 <!-- Aspect Ratio Toggle (for all presets) -->
                 <div class="custom-size-container" style="border-top: 1px solid var(--border); padding-top: 15px; margin-top: 15px;">
                     <label class="custom-size-label" style="margin-top: 10px; font-size: 0.9rem; font-weight: normal;">
@@ -862,57 +893,46 @@
                 </div>
 
                 <!-- Quality Control -->
-                <div class="custom-size-container" style="border-top: 1px solid var(--border); padding-top: 15px; margin-top: 15px;">
-                    <label class="custom-size-label" id="qualityLabel">Compression Quality:</label>
-                    <div class="size-options" style="margin-bottom: 10px;">
-                        <div class="size-option">
-                            <input type="radio" id="qualityLow" name="quality" value="0.60">
-                            <label for="qualityLow">
-                                <span class="size-label" id="qualityLowLabel">Low (60%)</span>
-                                <span class="size-value">Fast</span>
-                            </label>
-                        </div>
-                        <div class="size-option">
-                            <input type="radio" id="qualityMedium" name="quality" value="0.80">
-                            <label for="qualityMedium">
-                                <span class="size-label" id="qualityMediumLabel">Medium (80%)</span>
-                                <span class="size-value">Good</span>
-                            </label>
-                        </div>
-                        <div class="size-option">
-                            <input type="radio" id="qualityHigh" name="quality" value="0.92" checked>
-                            <label for="qualityHigh">
-                                <span class="size-label" id="qualityHighLabel">High (92%)</span>
-                                <span class="size-value">Best</span>
-                            </label>
-                        </div>
-                        <div class="size-option">
-                            <input type="radio" id="qualityCustom" name="quality" value="custom">
-                            <label for="qualityCustom">
-                                <span class="size-label" id="qualityCustomLabel">Custom</span>
-                                <span class="size-value">Other</span>
-                            </label>
-                        </div>
+                <h2 id="qualityTitle">Compression Quality</h2>
+                <div class="size-options">
+                    <div class="size-option">
+                        <input type="radio" id="qualityLow" name="quality" value="0.60">
+                        <label for="qualityLow">
+                            <span class="size-label" id="qualityLowLabel">Low (60%)</span>
+                            <span class="size-value">Fast</span>
+                        </label>
                     </div>
-
-                    <!-- Custom Quality Input -->
-                    <div class="custom-size-container" id="customQualityContainer" style="display: none; margin-top: 10px;">
-                        <div class="custom-size-input-wrapper">
-                            <input type="number" id="customQualityInput" class="custom-size-input" placeholder="50-100" min="1" max="100" value="92" style="max-width: 100px;">
-                            <span style="font-weight: 600;">%</span>
-                        </div>
-                        <div class="drop-zone-subtext" style="margin-top: 6px; text-align: left; font-size: 0.8rem;" id="qualityDesc">
-                            Higher quality = larger file size. 92% is recommended for most photos.
-                        </div>
+                    <div class="size-option">
+                        <input type="radio" id="qualityMedium" name="quality" value="0.80">
+                        <label for="qualityMedium">
+                            <span class="size-label" id="qualityMediumLabel">Medium (80%)</span>
+                            <span class="size-value">Good</span>
+                        </label>
+                    </div>
+                    <div class="size-option">
+                        <input type="radio" id="qualityHigh" name="quality" value="0.92" checked>
+                        <label for="qualityHigh">
+                            <span class="size-label" id="qualityHighLabel">High (92%)</span>
+                            <span class="size-value">Best</span>
+                        </label>
+                    </div>
+                    <div class="size-option">
+                        <input type="radio" id="qualityCustom" name="quality" value="custom">
+                        <label for="qualityCustom">
+                            <span class="size-label" id="qualityCustomLabel">Custom</span>
+                            <span class="size-value">Other</span>
+                        </label>
                     </div>
                 </div>
 
-                <div class="custom-size-container" id="customSizeContainer" style="display: none; border-top: none; padding-top: 0; margin-top: 0;">
-                    <label class="custom-size-label" id="customResLabel">Custom Resolution:</label>
+                <!-- Custom Quality Input -->
+                <div class="custom-size-container" id="customQualityContainer" style="display: none;">
                     <div class="custom-size-input-wrapper">
-                        <input type="number" id="customWidthInput" class="custom-size-input" placeholder="Width" min="100" max="7680" value="1920">
-                        <span style="font-weight: bold;">×</span>
-                        <input type="number" id="customHeightInput" class="custom-size-input" placeholder="Height" min="100" max="4320" value="1080">
+                        <input type="number" id="customQualityInput" class="custom-size-input" placeholder="50-100" min="1" max="100" value="92" style="max-width: 100px;">
+                        <span style="font-weight: 600;">%</span>
+                    </div>
+                    <div class="drop-zone-subtext" style="margin-top: 6px; text-align: left; font-size: 0.8rem;" id="qualityDesc">
+                        Higher quality = larger file size. 92% is recommended for most photos.
                     </div>
                 </div>
 
@@ -1000,6 +1020,7 @@
                 clearAllBtn: '清除所有',
 
                 // Quality Control
+                qualityTitle: '压缩质量',
                 qualityLabel: '压缩质量:',
                 qualityLowLabel: '低 (60%)',
                 qualityMediumLabel: '中 (80%)',
@@ -1086,6 +1107,7 @@
                 clearAllBtn: 'Clear All',
 
                 // Quality Control
+                qualityTitle: 'Compression Quality',
                 qualityLabel: 'Compression Quality:',
                 qualityLowLabel: 'Low (60%)',
                 qualityMediumLabel: 'Medium (80%)',
@@ -1204,6 +1226,7 @@
             footerPrivacy: document.getElementById('footerPrivacy'),
             footerNote: document.getElementById('footerNote'),
             // Quality Control
+            qualityTitle: document.getElementById('qualityTitle'),
             qualityLabel: document.getElementById('qualityLabel'),
             qualityLowLabel: document.getElementById('qualityLowLabel'),
             qualityMediumLabel: document.getElementById('qualityMediumLabel'),
@@ -1270,6 +1293,7 @@
             elements.footerNote.textContent = t.footerNote;
 
             // Quality Control
+            elements.qualityTitle.textContent = t.qualityTitle;
             elements.qualityLabel.textContent = t.qualityLabel;
             elements.qualityLowLabel.textContent = t.qualityLowLabel;
             elements.qualityMediumLabel.textContent = t.qualityMediumLabel;
